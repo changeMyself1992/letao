@@ -1,0 +1,70 @@
+/* 内容区域**********start********* */
+
+
+/* 导航栏样式区域 */
+
+.cz_cate {
+    padding: 0 10px;
+    margin-top: 10px;
+}
+
+.cz_cate a {
+    width: 33.3333%;
+    float: left;
+}
+
+.cz_cate a img {
+    display: block;
+    width: 100%;
+}
+
+
+/* 商品 */
+
+.ct_product {
+    width: 100%;
+    padding: 0 10px;
+    margin-top: 20px;
+}
+
+.ct_product .pro_item {
+    width: 48%;
+    float: left;
+    margin-top: 10px;
+}
+
+.ct_product .pro_item:nth-child(2n) {
+    /* 偶数 */
+    margin-right: 0;
+    margin-left: 1%;
+}
+
+.ct_product .pro_item:nth-child(2n+1) {
+    /* 奇数 */
+    margin-left: 0;
+    margin-right: 1%;
+}
+
+.ct_product .pro_item .pro_item_box {
+    display: block;
+    width: 100%;
+    min-height: 200px;
+    box-shadow: 0 0 3px red;
+    padding-bottom: 10px;
+}
+
+.ct_product .pro_item .pro_item_box>img {
+    width: 100%;
+}
+
+.ct_product .pro_item .pro_item_box>p {
+    text-align: center;
+}
+
+.ct_product .pro_item .pro_item_box>button {
+    display: block;
+    margin: 0 auto;
+}
+
+
+/* 内容区域**********end**********/
