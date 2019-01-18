@@ -1,64 +1,41 @@
-/**
- * ITCAST WEB
- * Created by zhousg on 2017/1/2.
- */
+/// <reference path="D:/2018web/12.移动web视频(共120多集)/移动web项目/letao/typings/index.d.ts" />
 $(function() {
-    mui('.mui-scroll-wrapper').scroll({
-        scrollY: true, //是否竖向滚动
-        scrollX: false, //是否横向滚动
-        startX: 0, //初始化时滚动至x
-        startY: 0, //初始化时滚动至y
-        indicators: false, //是否显示滚动条
-        deceleration: 0.0006, //阻尼系数,系数越小滑动越灵敏
-        bounce: true //是否启用回弹
+    //滑动区域初始化
+    var scroll = mui('.mui-scroll-wrapper').scroll({
+        indicators: true, //是否显示滚动条
     });
+
+    //1.初始化页面
+    //初始化上下拉
     mui.init({
         pullRefresh: {
-            container: '.mui-scroll-wrapper',
+            container: "#refreshContainer", //下拉刷新容器标识，querySelector能定位的css选择器均可，比如：id、.class等
             down: {
-                auto: true,
+                auto: true, //可选,默认false.首次加载自动上拉刷新一次
+                //必选，刷新函数，根据具体业务来编写，比如通过ajax从服务器获取新数据；
                 callback: function() {
                     var that = this;
-                    /*获取数据*/
                     getCartData(function(data) {
+                        //渲染页面
+                        console.log(data);
+                        $(".mui-table-view").html(template("cart", data));
+                        //停止下拉刷新
                         that.endPulldownToRefresh();
-                        /*渲染*/
-                        window.data = data;
-                        $('#cart_box').html(template('cartTpl', { model: window.data }));
                     });
                 }
             }
         }
     });
-    $('body').on('tap', '.mui-btn-red', function() {
-        var li = this.parentNode.parentNode;
-        var $this = $(this);
-        mui.confirm('你要删除这件商品吗？', '温馨提示', ['确定', '取消'], function(e) {
-            if (e.index == 0) {
-                deleteCartData({ id: $this.attr('data-id') }, function(data) {
-                    if (data.success) {
-                        li.parentNode.removeChild(li);
-                        setAmount();
-                    } else {
-                        mui.toast(data.message);
-                    }
-                });
-            } else {
-                mui.swipeoutClose(li);
-            }
-        })
-    });
 
-
+    //2.编辑功能
     $('body').on('tap', '.mui-btn-blue', function(e) {
         //修复iOS 8.x平台存在的bug，使用plus.nativeUI.prompt会造成输入法闪一下又没了
         e.detail.gesture.preventDefault();
-
         var li = this.parentNode.parentNode;
-
+        //拿到当前点击的商品数据
         var item = LeTao.getObjectFromId(window.data, $(this).attr('data-id'));
+        //渲染模板
         var html = template('cartUpdateTpl', { model: item }).replace(/\n/g, ' ');
-
         console.log(html);
         mui.confirm(html, '编辑商品', ['确定', '取消'], function(e) {
             if (e.index == 0) {
@@ -90,16 +67,17 @@ $(function() {
             } else {
                 mui.swipeoutClose(li);
             }
-        })
-    }).on('tap', '.icon_refresh', function() {
-        /*刷新*/
-        mui('.mui-scroll-wrapper').pullRefresh().pulldownLoading();
-    }).on('tap', '.btn_size', function() {
+        });
+    });
+    //尺码选择功能
+    $('body').on('tap', '.btn_size', function() {
         var $this = $(this);
         $('.btn_size').removeClass('now');
         $this.addClass('now');
 
-    }).on('tap', '.p_number span', function() {
+    });
+    //加减数量功能
+    $('body').on('tap', '.p_number span', function() {
         var $this = $(this),
             $input = $('.p_number input');
         var num = parseInt($input.val()),
@@ -114,32 +92,63 @@ $(function() {
                 mui.toast('没有库存了');
             }
         }
-    }).on('change', 'input[type="checkbox"]', function() {
+    });
+
+    //3.删除功能
+    $('body').on('tap', '.mui-btn-red', function() {
+        var li = this.parentNode.parentNode;
+        var $this = $(this);
+        mui.confirm('你要删除这件商品吗？', '温馨提示', ['确定', '取消'], function(e) {
+            if (e.index == 0) {
+                deleteCartData({ id: $this.attr('data-id') }, function(data) {
+                    if (data.success) {
+                        li.parentNode.removeChild(li);
+                        setAmount();
+                    } else {
+                        mui.toast(data.message);
+                    }
+                });
+            } else {
+                mui.swipeoutClose(li);
+            }
+        })
+    });
+
+
+    //4.点击刷新
+    $('body').on("tap", ".fa-refresh", function() {
+        getCartData(function() {
+            //主动调用下拉刷新
+            mui("#refreshContainer").pullRefresh().pulldownLoading();
+        });
+    });
+
+    //5.点击复选框，金额变化
+    $('body').on('change', 'input[type="checkbox"]', function() {
         setAmount();
     });
+
 });
-var getCartData = function(callback) {
+
+//获取购物车数据
+function getCartData(callback) {
     LeTao.ajax({
-        type: 'get',
-        url: '/cart/queryCart',
-        dataType: 'json',
+        url: "/cart/queryCartPaging",
+        type: "get",
+        data: {
+            page: 1,
+            pageSize: 50,
+        },
         success: function(data) {
-            callback && callback(data);
+            if (callback) {
+                window.data = data.data;
+                callback(data);
+            }
         }
     });
-};
-var deleteCartData = function(params, callback) {
-    LeTao.ajax({
-        type: 'get',
-        url: '/cart/deleteCart',
-        dataType: 'json',
-        data: params,
-        success: function(data) {
-            callback && callback(data);
-        }
-    });
-};
-var updateCartData = function(params, callback) {
+}
+//更新购物车数据
+function updateCartData(params, callback) {
     LeTao.ajax({
         type: 'post',
         url: '/cart/updateCart',
@@ -150,7 +159,22 @@ var updateCartData = function(params, callback) {
         }
     });
 };
-var setAmount = function() {
+//删除商品功能
+function deleteCartData(params, callback) {
+    LeTao.ajax({
+        type: 'get',
+        url: '/cart/deleteCart',
+        dataType: 'json',
+        data: params,
+        success: function(data) {
+            callback && callback(data);
+        }
+    });
+};
+
+
+//设置订单总额
+function setAmount() {
     var amount = 0;
     var checkPro = $('input:checked');
     for (var i = 0; i < checkPro.length; i++) {

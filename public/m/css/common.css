@@ -8,6 +8,10 @@ ul {
     list-style: none;
 }
 
+.now {
+    color: darkorange !important;
+}
+
 body {
     background: #fff;
 }

@@ -26,13 +26,13 @@
         <!-- 顶部通栏 -->
         <header class="ct_header">
             <a href="javascript:history.back();" class="left"><span class="fa fa-backward"></span></a>
-            <h3>搜索中心</h3>
+            <h3>商品列表</h3>
             <a href="./search.html" class="right"><span class="fa fa-search"></span></a>
         </header>
         <!-- 内容区域 -->
         <section class="ct_content">
             <div class="ct_wrapper">
-                <div class="mui-scroll-wrapper">
+                <div id="refreshContainer" class="mui-scroll-wrapper">
                     <div class="mui-scroll">
                         <!--这里放置真实显示的DOM内容-->
 
@@ -47,14 +47,28 @@
 
                         <!-- 搜索历史区域 -->
                         <div class="ct_history"></div>
+
+                        <!-- 排序 -->
+                        <div class="ct_order">
+                            <a href="javascript:;" data-type="time">上架时间<span class="fa fa-angle-down"></span></a>
+                            <a href="javascript:;" data-type="price">价格<span class="fa fa-angle-down"></span></a>
+                            <a href="javascript:;" data-type="num">销量<span class="fa fa-angle-down"></span></a>
+                            <a href="javascript:;" data-type="scale">折扣<span class="fa fa-angle-down"></span></a>
+                        </div>
+
+                        <!-- 商品区域 -->
+                        <div class="ct_product">
+                            <!-- todo -->
+                        </div>
+
                     </div>
                 </div>
             </div>
         </section>
         <!-- 页脚区域 -->
         <footer class="ct_footer">
-            <a class="tab_home fa fa-home now" href="index.html"><span>首页</span></a>
-            <a class="tab_cate fa fa-bars" href="category.html"><span>分类</span></a>
+            <a class="tab_home fa fa-home now" href="./index.html"><span>首页</span></a>
+            <a class="tab_cate fa fa-bars" href="./category.html"><span>分类</span></a>
             <a class="tab_cart fa fa-shopping-cart" href="./user/cart.html"><span>购物车</span></a>
             <a class="tab_user fa fa-user" href="./user/index.html"><span>会员中心</span></a>
         </footer>
@@ -62,8 +76,37 @@
 
 </body>
 
+<script type="text/template" id="list">
+
+    <!-- for循环开始 -->
+    <% for(var i = 0; i < data.length; i++){ %>
+        <% var item=data[i] %>
+            <!-- 循环内的语句闭合一定要是这种格式 <%= xxxxxxx %> -->
+            <div class="pro_item">
+                <a href="./product.html?productId=<%= item.id %>" class="pro_item_box">
+                    <% if(item.pic&&item.pic[0]) {%>
+                        <img src="<%= item.pic[0].picAddr %>" alt="">
+                        <% }else{%>
+                            <img src="images/none.jpg" alt="">
+                            <% } %>
+                                <p class="name">
+                                    <%= item.proName %>
+                                </p>
+                                <p><span class="price">¥<%= item.price %></span>&nbsp;&nbsp;<del class="oldPrice">¥<%= item.oldPrice %></del></p>
+                                <button type="button" class="mui-btn mui-btn-primary">立即购买</button>
+                </a>
+            </div>
+            <!-- for循环闭合 -->
+            <% } %>
+</script>
+
+
+
 <script src="assets/mui/js/mui.min.js"></script>
 <script src="assets/zepto/zepto.min.js"></script>
+<script src="assets/artTemplate/template-native.js"></script>
 <script src="js/search.js"></script>
+<script src="js/common.js"></script>
+<script src="js/searchList.js"></script>
 
 </html>
